@@ -1,37 +1,62 @@
 import { useState, useEffect } from "react";
-import { auth, getUserRole } from "./auth";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import Login from "./Login";
-import AdminDashboard from "./AdminDashboard";
-import UserDashboard from "./UserDashboard";
+import { auth } from "./auth";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Login from "./components/auth/login/Login";
+import Register from "./components/auth/register/Register";
+import AdminDashboard from "./components/dashboard/AdminDashboard";
+import UserDashboard from "./components/dashboard/UserDashboard";
+import { AuthProvider } from "./contexts/authContext"; // Importa l'AuthProvider
 
 function App() {
   const [user, setUser] = useState(auth.currentUser);
   const [role, setRole] = useState<"admin" | "user" | null>(null);
+  const [loading, setLoading] = useState(true); // 🔹 Aggiunto stato di loading
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      setUser(user);
       if (user) {
-        const userRole = await getUserRole(user.uid);
-        setRole(userRole);
+        const idTokenResult = await user.getIdTokenResult();
+        setRole(idTokenResult.claims.admin ? "admin" : "user");
       } else {
         setRole(null);
       }
+      setUser(user);
+      setLoading(false); // 🔹 Imposta loading a false quando i dati sono stati caricati
     });
+
     return unsubscribe;
   }, []);
 
+  const handleLogout = async () => {
+    await auth.signOut();
+    setUser(null);
+    setRole(null);
+  };
+
+  if (loading) {
+    return <div>Caricamento...</div>;
+  }
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={user ? (role === "admin" ? <AdminDashboard /> : <UserDashboard />) : <Login />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={
+            user ? (
+              role === "admin" ? <AdminDashboard onLogout={handleLogout} /> : <UserDashboard onLogout={handleLogout} />
+            ) : <Login />
+          }/>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
 export default App;
+
+
 
 // import { useState } from 'react'
 // import reactLogo from './assets/react.svg'
