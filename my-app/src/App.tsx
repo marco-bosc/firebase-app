@@ -6,6 +6,9 @@ import Register from "./components/auth/register/Register";
 import AdminDashboard from "./components/dashboard/AdminDashboard";
 import UserDashboard from "./components/dashboard/UserDashboard";
 import { AuthProvider } from "./contexts/authContext"; // Importa l'AuthProvider
+import Dashboard from "./components/dashboard/Dashboard";
+import Settings from "./components/dashboard/pages/Settings";
+import Overview from "./components/dashboard/pages/Overview";
 
 function App() {
   const [user, setUser] = useState(auth.currentUser);
@@ -48,6 +51,12 @@ function App() {
           }/>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          <Route path="/dash/*" element={<Dashboard />}>
+            <Route index element={<Overview />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+
         </Routes>
       </Router>
     </AuthProvider>
