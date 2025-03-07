@@ -9,6 +9,7 @@ import { AuthProvider } from "./contexts/authContext"; // Importa l'AuthProvider
 import Dashboard from "./components/dashboard/Dashboard";
 import Settings from "./components/dashboard/pages/Settings";
 import Overview from "./components/dashboard/pages/Overview";
+import CantierePage from "./components/dashboard/pages/Cantieri";
 
 function App() {
   const [user, setUser] = useState(auth.currentUser);
@@ -56,6 +57,8 @@ function App() {
             <Route index element={<Overview />} />
             <Route path="settings" element={<Settings />} />
           </Route>
+
+          <Route path="/cantieri" element={<CantierePage />} />
 
         </Routes>
       </Router>
